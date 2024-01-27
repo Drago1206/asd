@@ -9,56 +9,54 @@ namespace WcfPedidos30.Models
     [DataContract]
     public class ClienteResponse
     {
-        
         public string NitCliente { get; set; }
-        public string CiudadCliente { get; set; }
-        public string DireccionCliente { get; set; }
-        public string NombreCliente { get; set; }
-        public string TelefonoCLiente { get; set; }
+        public int PaginaActual { get; set; }
+        public int RegistrosPorPagina { get; set; }
+        public string Ciudad { get; set; }
+        public string Direccion { get; set; }
+        public List<Agencia> ListaAgencias { get; set; }
+        public string CodAge { get; set; }
+        public string NomAge { get; set; }
         public string NitVendedor { get; set; }
         public string NomVendedor { get; set; }
-        List<Agencia> ItemAgencia { get; set; }
+        public int NumLista { get; set; }
 
         [DataMember]
-        public string _NitCliente { get { return NitCliente; } set { NitCliente = value; } }
+        public string pmNitCliente { get { return NitCliente; } set { NitCliente = value; } }
         [DataMember]
-        public string _CiudadCliente { get { return _CiudadCliente; } set { _CiudadCliente = value; } }
+        public int pmPaginaActual { get { return PaginaActual; } set { PaginaActual = value; } }
         [DataMember]
-        public string _DireccionCliente { get { return _DireccionCliente; } set { _DireccionCliente = value; } }
+        public int pmRegistrosPorPagina { get { return RegistrosPorPagina; } set { RegistrosPorPagina = value; } }
         [DataMember]
-        public string _NombreCliente { get { return _NombreCliente; } set { _NombreCliente = value; } }
+        public string pmCiudad { get { return Ciudad; } set { Ciudad = value; } }
         [DataMember]
-        public string _TelefonoCLiente { get { return _TelefonoCLiente; } set { _TelefonoCLiente = value; } }
+        public string pmDireccion { get { return Direccion; } set { Direccion = value; } }
         [DataMember]
-        public string _NitVendedor { get { return _NitVendedor; } set { _NitVendedor = value; } }
+        public List<Agencia> pmListaAgencia { get { return ListaAgencias; } set { ListaAgencias = value; } }
         [DataMember]
-        public string _NomVendedor { get { return _NomVendedor; } set { _NomVendedor = value; } }
+        public string pmCodAge { get { return CodAge; } set { CodAge = value; } }
+        [DataMember]
+        public string pmNomAge { get { return NomAge; } set { NomAge = value; } }
+        [DataMember]
+        public string pmNitVendedor { get { return NitVendedor; } set { NitVendedor = value; } }
+        [DataMember]
+        public string pmNomVendedor { get { return NomVendedor; } set { NomVendedor = value; } }
+        [DataMember]
+        public int pmNumLista { get { return NumLista; } set { NumLista = value; } }
+
     }
-    [DataContract]
-    public class ClienteResquest
+    public class ClienteRequest
     {
         public string NitCliente { get; set; }
-        public string CiudadCliente { get; set; }
-        public string DireccionCliente { get; set; }
-        public string NombreCliente { get; set; }
-        public string TelefonoCLiente { get; set; }
-        public string NitVendedor { get; set; }
-        public string NomVendedor { get; set; }
-        List<Agencia> Agencia { get; set; }
+        public int Password { get; set; }
+        public string UserName { get; set; }
 
         [DataMember]
-        public string _NitCliente { get { return NitCliente; } set { NitCliente = value; } }
+        public string pmNitCliente { get { return NitCliente; } set { NitCliente = value; } }
         [DataMember]
-        public string _CiudadCliente { get { return _CiudadCliente; } set { _CiudadCliente = value; } }
+        public string pmUserName { get { return UserName; } set { UserName = value; } }
         [DataMember]
-        public string _DireccionCliente { get { return _DireccionCliente; } set { _DireccionCliente = value; } }
-        [DataMember]
-        public string _NombreCliente { get { return _NombreCliente; } set { _NombreCliente = value; } }
-        [DataMember]
-        public string _TelefonoCLiente { get { return _TelefonoCLiente; } set { _TelefonoCLiente = value; } }
-        [DataMember]
-        public string _NitVendedor { get { return _NitVendedor; } set { _NitVendedor = value; } }
-        [DataMember]
-        public string _NomVendedor { get { return _NomVendedor; } set { _NomVendedor = value; } }
+        public int pmPassword { get { return Password; } set { Password = value; } }
     }
+
 }

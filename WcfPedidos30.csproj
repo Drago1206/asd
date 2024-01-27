@@ -116,18 +116,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Conexion\ConexionDB.cs" />
-    <Compile Include="Conexion\ConexionSqlLite.cs" />
     <Compile Include="Conexion\PwdSyscom.cs" />
     <Compile Include="Models\Agencia.cs" />
     <Compile Include="Models\Cartera.cs" />
     <Compile Include="Models\Cliente.cs" />
-    <Compile Include="Models\Clientes.cs" />
     <Compile Include="Models\LogErrores.cs" />
     <Compile Include="Models\PaginadorCliente.cs" />
     <Compile Include="Models\PaginadorProducto.cs" />
     <Compile Include="Models\Pedido.cs" />
     <Compile Include="Models\Producto.cs" />
-    <Compile Include="Models\Sys_Usuarios.cs" />
+    <Compile Include="Models\pwdSyscom.cs" />
     <Compile Include="Models\Usuario.cs" />
     <Compile Include="Service1.svc.cs">
       <DependentUpon>Service1.svc</DependentUpon>

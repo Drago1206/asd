@@ -15,8 +15,9 @@ using WcfPedidos30.Models;
 
 namespace WcfSyscom30.Conexion
 {
-    public class ConexionDB
+    public class ConexionBD
     {
+        private List<string> msjError = new List<string>();
         private SqlConnectionStringBuilder conBuilder = null;
         private SqlConnection sqlConn = null;
         private DataSet ds = new DataSet();
@@ -44,19 +45,20 @@ namespace WcfSyscom30.Conexion
         public Dictionary<string, object> qryValues = new Dictionary<string, object>();
         public List<string> Errores = new List<string>();
         private SqlDataAdapter adapter;
-        private ConexionSqlLite conSqlite = new ConexionSqlLite("");
 
-        public ConexionDB()
-        {
-            this.conBuilder = conSqlite.obtenerConexionSyscom();
-        }
 
-        public ConexionDB(SqlConnectionStringBuilder stringConn)
+
+        
+
+        public ConexionBD(SqlConnectionStringBuilder stringConn)
         {
             stringConn.ConnectTimeout = 0;
             sqlConn = new SqlConnection(stringConn.ConnectionString);
         }
 
+        public ConexionBD()
+        {
+        }
 
         public ConnectionState abrirConexion(bool isTransact = false)
         {
@@ -112,8 +114,8 @@ namespace WcfSyscom30.Conexion
             }
             catch (Exception ex)
             {
-                //LogErrores.escribirError(ex);
-                //LogErrores.write();
+                //   LogErrores.escribirError(ex);
+                //  LogErrores.write();
             }
             return resultado;
         }
@@ -789,8 +791,8 @@ namespace WcfSyscom30.Conexion
                     }
                     catch (Exception e)
                     {
-                      // LogErrores.escribirError(e);
-                      //LogErrores.write();
+                        // LogErrores.escribirError(e);
+                        //LogErrores.write();
                     }
                     i = i + 1;
                 }
@@ -1501,6 +1503,54 @@ namespace WcfSyscom30.Conexion
             {
                 return dtConf;
             }
+        }
+
+        /// <summary>
+        /// Procedimientos Almacenados.
+        /// </summary>
+        /// <param name="SqlQuery">metodo acceder.</param>
+        /// <param name="_parametros">parametros en la consulta.</param>
+        /// <param name="_Datos">dataset.</param>
+        /// <param name="tipo">The tipo.</param>
+        /// <returns></returns>
+        public bool ejecutarQuery(string SqlQuery, List<SqlParameter> _parametros, out DataSet _Datos, out string[] mensaje, CommandType tipo = CommandType.Text)
+        {
+
+            bool resultado = false;
+            _Datos = new DataSet();
+            mensaje = new string[2];
+            try
+            {
+                if (sqlConn != null)
+                {
+                    try
+                    {
+                        if (this.sqlConn.State != ConnectionState.Open)
+                            abrirConexion();
+
+                        SqlDataAdapter adapter = new SqlDataAdapter(SqlQuery, this.sqlConn);
+                        adapter.SelectCommand.CommandType = tipo;
+                        adapter.SelectCommand.Parameters.Clear();
+                        adapter.SelectCommand.CommandTimeout = 9999999;
+                        _Datos.Clear();
+                        adapter.SelectCommand.Parameters.AddRange(_parametros.ToArray());
+                        adapter.Fill(_Datos);
+
+                        resultado = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        msjError.Add(ex.Message);
+                        mensaje[0] = "011";
+                        mensaje[1] = "Error al ejecutar la consulta" + SqlQuery + " ha ocurrido  " + ex.Message + "]";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return resultado;
         }
     }
 }

@@ -4,47 +4,60 @@ using System.IO;
 using System.Linq;
 using System.Web;
 
-namespace WcfPedidos30.Models
+namespace WcfPruebas30.Models
 {
-    public class LogErrores
-    {
-        private static string dir = AppDomain.CurrentDomain.BaseDirectory;
-        public static List<string> tareas = new List<string>();
-
-        public static void log(string mensaje)
+	
+        public static class LogErrores
         {
-            tareas.Add(mensaje);
-        }
+     
 
-        public static void write()
-        {
-            using (StreamWriter sw = new StreamWriter(dir + "\\log_" + DateTime.Now.Year + "_" + DateTime.Now.Month + ".txt", true))
+
+             private static string dir = AppDomain.CurrentDomain.BaseDirectory;
+            public static List<string> tareas = new List<string>();
+
+            public static void log(string mensaje)
             {
-                foreach (var i in tareas)
+                tareas.Add(mensaje);
+            }
+
+            public static void write()
+            {
+                using (StreamWriter sw = new StreamWriter(dir + "\\log_" + DateTime.Now.Year + "_" + DateTime.Now.Month + ".txt", true))
                 {
-                    sw.WriteLine(DateTime.Now + ": " + i);
+                    foreach (var i in tareas)
+                    {
+                        sw.WriteLine(DateTime.Now + ": " + i);
+                    }
+                    sw.Close();
                 }
-                sw.Close();
+                tareas.Clear();
             }
-            tareas.Clear();
-        }
 
-        public static void escribirError(Exception ex)
-        {
-            string message =
-        "Exception type " + ex.GetType() + Environment.NewLine +
-        "Exception message: " + ex.Message + Environment.NewLine +
-        "Stack trace: " + ex.StackTrace + Environment.NewLine;
-            if (ex.InnerException != null)
+            public static void escribirError(Exception ex)
             {
-                message += "---BEGIN InnerException--- " + Environment.NewLine +
-                           "Exception type " + ex.InnerException.GetType() + Environment.NewLine +
-                           "Exception message: " + ex.InnerException.Message + Environment.NewLine +
-                           "Stack trace: " + ex.InnerException.StackTrace + Environment.NewLine +
-                           "---END Inner Exception";
-            }
+                string message =
+            "Exception type " + ex.GetType() + Environment.NewLine +
+            "Exception message: " + ex.Message + Environment.NewLine +
+            "Stack trace: " + ex.StackTrace + Environment.NewLine;
+                if (ex.InnerException != null)
+                {
+                    message += "---BEGIN InnerException--- " + Environment.NewLine +
+                               "Exception type " + ex.InnerException.GetType() + Environment.NewLine +
+                               "Exception message: " + ex.InnerException.Message + Environment.NewLine +
+                               "Stack trace: " + ex.InnerException.StackTrace + Environment.NewLine +
+                               "---END Inner Exception";
+                }
 
-            tareas.Add(message);
+                tareas.Add(message);
+            }
         }
+
+    public class Errores {
+        public string codigo;
+        public string descripcion;
+        public DateTime Fecha;
+        public string Consecutivo;
+        public string IdCia;
     }
+    
 }

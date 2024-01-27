@@ -130,3 +130,4 @@ D:\Repositorios\WebService\WebServiceSyscom\WcfPruebas30\obj\Debug\WcfPedidos30.
 D:\Repositorios\WebService\WebServiceSyscom\WcfPruebas30\obj\Debug\WcfPedidos30.csproj.CopyComplete
 D:\Repositorios\WebService\WebServiceSyscom\WcfPruebas30\obj\Debug\WcfPruebas30.dll
 D:\Repositorios\WebService\WebServiceSyscom\WcfPruebas30\obj\Debug\WcfPruebas30.pdb
+D:\Repositorios\WebService\WebServiceSyscom\WcfPruebas30\obj\Debug\WcfPedidos30.csprojAssemblyReference.cache

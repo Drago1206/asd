@@ -22,6 +22,6 @@ namespace WcfPedidos30.Models
         [DataMember(IsRequired = true, EmitDefaultValue = false)]
         public string Observación { get; set; }
         [DataMember(IsRequired = true, EmitDefaultValue = false)]
-        public List<Productos> ListaProductos { get; set; }
+        public List<ProductosResponse> ListaProductos { get; set; }
     }
 }
