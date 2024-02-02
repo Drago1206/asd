@@ -27,5 +27,10 @@ namespace WcfPedidos30.Models
         /// Texto de búsqueda de la consuta actual.
         /// </summary>
         public IEnumerable<T> Resultado { get; set; }
+
+        public static implicit operator PaginadorCliente<T>(ClienteResponse v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

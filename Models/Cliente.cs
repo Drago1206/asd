@@ -9,40 +9,41 @@ namespace WcfPedidos30.Models
     [DataContract]
     public class ClienteResponse
     {
-        public string NitCliente { get; set; }
-        public int PaginaActual { get; set; }
-        public int RegistrosPorPagina { get; set; }
-        public string Ciudad { get; set; }
-        public string Direccion { get; set; }
-        public List<Agencia> ListaAgencias { get; set; }
-        public string CodAge { get; set; }
-        public string NomAge { get; set; }
-        public string NitVendedor { get; set; }
-        public string NomVendedor { get; set; }
-        public int NumLista { get; set; }
+        private string pmNitCliente { get; set; }
+        private string pmNombreCliente { get; set; }
+        private string pmCiudad { get; set; }
+        private string pmDireccion { get; set; }
+        private string pmNitVendedor { get; set; }
+        private string pmNomVendedor { get; set; }
+        private int pmNumLista { get; set; }
+        private string pmTelefono { get; set; }
 
         [DataMember]
-        public string pmNitCliente { get { return NitCliente; } set { NitCliente = value; } }
+        public List<Agencia> ListaAgencia { get; set; }
+        private PaginadorCliente<ClienteResponse> pmPaginadorCliente;
+
         [DataMember]
-        public int pmPaginaActual { get { return PaginaActual; } set { PaginaActual = value; } }
+        public string NitCliente { get { return pmNitCliente; } set { pmNitCliente = value; } }
         [DataMember]
-        public int pmRegistrosPorPagina { get { return RegistrosPorPagina; } set { RegistrosPorPagina = value; } }
+        public string NombreCliente { get { return pmNombreCliente; } set { pmNombreCliente = value; } }
+
         [DataMember]
-        public string pmCiudad { get { return Ciudad; } set { Ciudad = value; } }
+        public string Ciudad { get { return pmCiudad; } set { pmCiudad = value; } }
         [DataMember]
-        public string pmDireccion { get { return Direccion; } set { Direccion = value; } }
+        public string Direccion { get { return pmDireccion; } set { pmDireccion = value; } }       
+        
         [DataMember]
-        public List<Agencia> pmListaAgencia { get { return ListaAgencias; } set { ListaAgencias = value; } }
+        public string NitVendedor { get { return pmNitVendedor; } set { pmNitVendedor = value; } }
         [DataMember]
-        public string pmCodAge { get { return CodAge; } set { CodAge = value; } }
+        public string NomVendedor { get { return pmNomVendedor; } set { pmNomVendedor = value; } }
         [DataMember]
-        public string pmNomAge { get { return NomAge; } set { NomAge = value; } }
+        public int NumLista { get { return pmNumLista; } set { pmNumLista = value; } }
         [DataMember]
-        public string pmNitVendedor { get { return NitVendedor; } set { NitVendedor = value; } }
+        public string Telefono { get { return pmTelefono; } set { pmTelefono = value; } }
+        /*
         [DataMember]
-        public string pmNomVendedor { get { return NomVendedor; } set { NomVendedor = value; } }
-        [DataMember]
-        public int pmNumLista { get { return NumLista; } set { NumLista = value; } }
+        public List<Agencia> ListaAgencia { get { return pmListaAgencias; } set { pmListaAgencias = value; } }
+       */
 
     }
     public class ClienteRequest

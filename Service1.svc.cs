@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using WcfPedidos30.Model;
 using WcfPedidos30.Models;
+using WcfPruebas30.Models;
 using WcfSyscom30.Conexion;
+using static WcfPruebas30.CarteraReq;
 
 namespace WcfPruebas30
 {
@@ -24,262 +28,241 @@ namespace WcfPruebas30
 
 
 
-        public RespClientes GetClientes(ObtInfoClientes obtenerConSolidado)
+
+
+        public CarteraResp RespCartera(CarteraReq ReqCartera)
         {
-            RespClientes ConsolidadoClientes = new RespClientes();
-            ConsolidadoClientes.Registro = new Log();
-            String cliente = "";
-            ConexionBD Db = new ConexionBD();
-            List<ClienteResponse> Cliente = new List<ClienteResponse>();
-            if (obtenerConSolidado.Pagina.NumRegistroPagina > 0)
-            {
-                ResultadoPorPagina = ConsolidadoClientes.paginas.NumeroDePaginas;
-                FinPaginacion = ResultadoPorPagina;
-            }
-            if (obtenerConSolidado.Pagina.Pagina > 0)
-            {
-                NumeroPagina = obtenerConSolidado.Pagina.Pagina;
-                FinPaginacion = ResultadoPorPagina * NumeroPagina;
-                InicioPaginacion = (FinPaginacion - ResultadoPorPagina) + 1;
-            }
-            if (obtenerConSolidado.NitCliente != null || String.IsNullOrWhiteSpace(obtenerConSolidado.NitCliente))
-            {
-                cliente = obtenerConSolidado.NitCliente;
-                InicioPaginacion = 1;
-                FinPaginacion = 1;
-                NumeroPagina = 1;
-            }
-            return null;
-            // Acceder al procedimiento de almacenamiento
-            DataSet TablaClientes = new DataSet();
-            List<SqlParameter> ListParametros = new List<SqlParameter>();
-            ListParametros.Add(new SqlParameter("@NitCliente", cliente));
-            ListParametros.Add(new SqlParameter("Inicio", InicioPaginacion));
-            ListParametros.Add(new SqlParameter("Fin", FinPaginacion));
+            ConexionBD con = new ConexionBD();
 
-            if (Db.ejecutarQuery("WSConsolidacionClient", ListParametros, out TablaClientes, out string[] NuevoMensaje, CommandType.StoredProcedure))
+
+            CarteraResp respuesta = new CarteraResp();
+            try
             {
-                ResultadoTotal = Convert.ToInt32(TablaClientes.Tables[0].Rows[0]["TotalFilas"]);
-                if (ResultadoTotal > 0) {
-                    if (NumeroPagina <= (int)Math.Ceiling((double)ResultadoTotal / ResultadoPorPagina))
+                respuesta.Error = null;
+                if (ReqCartera.usuario == null)
+                    respuesta.Error = new Errores { codigo = "user_002", descripcion = "¡todas las variables del usuario no pueden ser nulas!" };
+                if (ReqCartera.usuario.UserName == null || string.IsNullOrWhiteSpace(ReqCartera.usuario.UserName))
+                    respuesta.Error = new Errores { codigo = "user_003", descripcion = "¡el username no puede ser nulo o vacío!" };
+                else if (ReqCartera.usuario.Password == null || string.IsNullOrWhiteSpace(ReqCartera.usuario.Password))
+                    respuesta.Error = new Errores { codigo = "user_003", descripcion = "¡el password no puede ser nulo o vacío!" };
+                else if (ReqCartera.NitCliente == null || string.IsNullOrWhiteSpace(ReqCartera.NitCliente))
+                    respuesta.Error = new Errores { codigo = "clien_001", descripcion = "¡el nitcliente no puede ser nulo o vacío!" };
+
+                DataSet Tablainfo = new DataSet();
+                Cartera cart = new Cartera();
+                ItemCartera cartItem = new ItemCartera();
+                cartItem.Detalle = new List<Cartera>();
+                List<ItemCartera> datItemCart = new List<ItemCartera>();
+
+                try
+                {
+                    con.setConnection("SyscomDBSAL");
+                    List<SqlParameter> parametros = new List<SqlParameter>();
+
+                    parametros.Add(new SqlParameter("@NitCliente", ReqCartera.NitCliente));
+                    con.addParametersProc(parametros);
+
+                    //Ejecuta procedimiento almacenado
+                    DataTable DT = new DataTable();
+                    con.resetQuery();
+
+                    if (con.ejecutarQuery("ConsultarCartera", parametros, out Tablainfo, out string[] nuevoMennsaje, CommandType.StoredProcedure))
                     {
+                        IEnumerable<DataRow> data = Tablainfo.Tables[0].AsEnumerable()
+                                                           .Where(row => row.Field<string>("Tercero") == ReqCartera.NitCliente);
 
-                        IEnumerable<DataRow> data = TablaClientes.Tables[1].AsEnumerable();
-                        IEnumerable<DataRow> dataFil = data.GroupBy(g => g.Field<string>("IdTercero")).Select(g => g.First());
-
-                        dataFil.ToList().ForEach(i => Cliente.Add(new ClienteResponse
+                        foreach (DataRow row in data)
                         {
-                            pmNitCliente = i.Field<string>("NitCliente"),
-                            pmPaginaActual = i.Field<int>("PaginActual"),
-                            pmRegistrosPorPagina = i.Field<int>("RegistrosXPagina"),
-                            pmCiudad = i.Field<string>("Ciudad"),
-                            pmNumLista = i.Field<int>("NumLista"),
-                            pmDireccion = i.Field<string>("Direccion"),
-                            pmNitVendedor = i.Field<string>("NitVendedor"),
-                            pmNomVendedor = i.Field<string>("NombreVendedor")
-                            
-
-               
-                        }));
-
-                        Cliente.ForEach(c =>
-                        {
-                            if (data.Where(r => r.Field<string>("IdAgencia") != null).Count() > 0)
+                            cartItem.Detalle.Add(new Cartera
                             {
-                                c.pmListaAgencia = new List<Agencia>();
-                                data.Where(ca => ca.Field<string>("IdAgencia") != null).ToList().ForEach(i => c.pmListaAgencia.Add(new Agencia
-                                {
-                                    pmCodAge = i.Field<string>("CodAgencia"),
-                                    pmNomAge = i.Field<string>("NomAge")
-                                }));
-                            }
+                                Abono = Convert.ToInt32(row.Field<Decimal>("Abono")),
+                                Documento = row.Field<int>("Documento"),
+                                TipoDocumento = row.Field<string>("Tipodocumento"),
+                                Compania = row.Field<string>("Compañia"),
+                                Vencimiento = Convert.ToInt32(row.Field<Int16>("Vencimiento")),
+                                ValorTotal = Convert.ToInt32(row.Field<Decimal>("ValorTotal")),
+                                FechaEmision = row.Field<DateTime>("FechaEmision"),
+                                FechaVencimiento = row.Field<DateTime>("Fechavencimiento"),
+                                Saldo = Convert.ToInt32(row.Field<Decimal>("Saldo"))
 
-                        });
-                        ConsolidadoClientes.Clientes = Cliente;
-                        ConsolidadoClientes.Registro = new Log { Codigo = "008", Descripcion = "Se ejecutó correctamente la consulta" };
-                    }
-                    else {
-                        ConsolidadoClientes.Registro = new Log { Codigo = "009", Descripcion = "La Página que deseas acceder no está disponible porque solo cuentan con " + (int)Math.Ceiling((double)ResultadoTotal/ResultadoPorPagina)};
-                    }
+                            });
+                            datItemCart.Add(new ItemCartera
+                            {
+                                SaldoCartera = Convert.ToInt32(row.Field<Decimal>("SaldoCartera")),
+                                Tercero = row.Field<string>("Tercero")
+                            });
+                            respuesta.DatosCartera = datItemCart;
+                            respuesta.DatosCartera.Add(cartItem);
+                        }
 
+
+
+                    }
 
                 }
+                catch (Exception e)
+                {
+                    respuesta.Error = new Errores { descripcion = e.Message };
+                }
+            }
+            catch (IOException ex)
+            {
+                respuesta.Error = new Errores { descripcion = ex.Message };
+            }
+            return respuesta;
+        }
 
+
+        public RespClientes resClients(ObtInfoClientes obtenerConSolidado)
+        {
+            RespClientes respuesta = new RespClientes();
+            ClienteResponse agencia = new ClienteResponse();
+            respuesta.Error = null;
+            ConexionBD con = new ConexionBD();
+            string cliente = "";
+            List<ClienteResponse> clientes = new List<ClienteResponse>();
+
+
+
+            try
+            {
+                if (obtenerConSolidado._usuario == null || String.IsNullOrWhiteSpace(obtenerConSolidado._usuario.UserName))
+                    respuesta.Error = new Errores { codigo = "USER_002", descripcion = "¡Todas las variables del usuario no pueden ser nulas!" };
+                else
+                {
+                    if (obtenerConSolidado._usuario.UserName == null || String.IsNullOrWhiteSpace(obtenerConSolidado._usuario.UserName))
+                        respuesta.Error = new Errores { codigo = "USER_003", descripcion = "¡El UserName no puede ser nulo o vacío!" };
+                    else if (obtenerConSolidado._usuario.Password == null || String.IsNullOrWhiteSpace(obtenerConSolidado._usuario.Password))
+                        respuesta.Error = new Errores { codigo = "USER_003", descripcion = "¡El Password no puede ser nulo o vacío!" };
+                    else if (obtenerConSolidado.NitCliente == null || String.IsNullOrWhiteSpace(obtenerConSolidado.NitCliente))
+                        respuesta.Error = new Errores { codigo = "CLIEN_001", descripcion = "¡El NitCliente no puede ser nulo o vacío!" };
+                    cliente = obtenerConSolidado.NitCliente;
+
+                    try
+                    {
+                        con.setConnection("Syscom");
+                        DataSet TablaCliente = new DataSet();
+                        List<SqlParameter> parametros = new List<SqlParameter>();
+                        parametros.Add(new SqlParameter("@NitCliente", obtenerConSolidado.NitCliente));
+                        con.addParametersProc(parametros);
+                        DataTable DT = new DataTable();
+                        con.resetQuery();
+
+                        if (con.ejecutarQuery("ConsolidacionClientes", parametros, out TablaCliente, out string[] NuevoMensaje, CommandType.StoredProcedure))
+                        {
+                            // Calcula el número total de elementos en la tabla 1 de TablaCliente
+                            int ResultadoTotal = TablaCliente.Tables[0].Rows.Count;
+
+
+                            int totalPaginas = (int)Math.Ceiling((double)ResultadoTotal / ResultadoPorPagina);
+
+                            // Verifica si la página solicitada es válida
+                            if (NumeroPagina <= totalPaginas)
+                            {
+                                // Filtrar los datos por el NIT del cliente
+                                IEnumerable<DataRow> data = TablaCliente.Tables[0].AsEnumerable()
+                                                            .Where(row => row.Field<string>("NitCliente") == obtenerConSolidado.NitCliente);
+
+                                
+                                clientes = con.DataTableToList<ClienteResponse>("NitCliente,NombreCliente,Direccion,Ciudad,Telefono,NumLista,NitVendedor,NomVendedor".Split(','), TablaCliente);
+                                DataTable lista = TablaCliente.Tables[0];
+                                clientes.ForEach(m =>
+                                {
+                                    m.ListaAgencia = new List<Agencia>();
+                                    m.ListaAgencia = con.DataTableToList<Agencia>(lista.Copy().Rows.Cast<DataRow>().Where(r => r.Field<string>("NitCliente").Equals(m.NitCliente)).CopyToDataTable().AsDataView().ToTable(true, "CodAge,NomAge".Split(',')));
+                                });
+
+                                //// Procesar los datos filtrados
+                                //foreach (DataRow row in data)
+                                //{
+
+                                //    clientes.Add(new ClienteResponse
+                                //    {
+                                //        Ciudad = row.Field<string>("Ciudad"),
+                                //        Direccion = row.Field<string>("Direccion"),
+                                //        NitCliente = row.Field<string>("NitCliente"),
+                                //        NombreCliente = row.Field<string>("NombreCliente"),
+                                //        NitVendedor = row.Field<string>("NitVendedor"),
+                                //        NomVendedor = row.Field<string>("NomVendedor"),
+                                //        NumLista = row.Field<int>("NumLista"),
+
+                                //    });
+
+                                //    agencia.ListaAgencia.Add(new Agencia
+                                //    {
+                                //        pmNomAge = row.Field<string>("NomAge"),
+                                //        pmCodAge = row.Field<string>("CodAge")
+                                //    });
+
+                                //}
+
+                                // Asignar la lista filtrada a RespClientes
+
+
+                                respuesta.ListadoClientes = new PaginadorCliente<ClienteResponse> { Resultado = clientes };
+
+
+                                respuesta.Error = new Errores { codigo = "008", descripcion = "Se ejecutó correctamente la consulta" };
+
+                            }
+                        }
+
+                    }
+
+                    catch (Exception e)
+                    {
+
+                        respuesta.Error = new Errores { descripcion = e.Message };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                respuesta.Error = new Errores { descripcion = ex.Message };
             }
 
-            return ConsolidadoClientes;
-
+            return respuesta;
         }
 
-     
-
-  
-
-        [return: MessageParameter(Name = "ConsolidacionC")]
-        public RespClientes resClients(RespClientes Info)
-        {
-            throw new NotImplementedException();
-        }
-
-        [return: MessageParameter(Name = "CarteraResponse")]
-        public CarteraReq.CarteraResp RespCartera(CarteraReq ReqCartera)
-        {
-            throw new NotImplementedException();
-        }
-
-        [return: MessageParameter(Name = "CarteraTotal")]
-        public CarteraReq.CarteraRespTotal RespCarteraTotal(CarteraReq.ObtCarteraTotal obtCarteraTotal)
-        {
-            throw new NotImplementedException();
-        }
-
-        //Obtener cartera metodo para modificar
-        //[WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/ObtenerCartera", BodyStyle = WebMessageBodyStyle.Bare)]
-        //[return: MessageParameter(Name = "Cartera")]
-        //public ResObtenerCartera getCartera(DtCliente Modelo)
+       
+        //public CarteraRespTotal RespCarteraTotal(ObtCarteraTotal obtCarteraTotal)
         //{
-        //    ResObtenerCartera respuesta = new ResObtenerCartera();
+        //    ConexionBD con = new ConexionBD();
+        //    ConexionBD Conex = new ConexionBD();
+        //    CarteraRespTotal respuesta = new CarteraRespTotal();
         //    respuesta.Error = null;
+        //    if (obtCarteraTotal.usuario == null)
+        //        respuesta.Error = new Errores { codigo = "user_002", descripcion = "¡todas las variables del usuario no pueden ser nulas!" };
+        //    if (obtCarteraTotal.usuario.UserName == null || string.IsNullOrWhiteSpace(obtCarteraTotal.usuario.UserName))
+        //        respuesta.Error = new Errores { codigo = "user_003", descripcion = "¡el username no puede ser nulo o vacío!" };
+        //    else if (obtCarteraTotal.usuario.Password == null || string.IsNullOrWhiteSpace(obtCarteraTotal.usuario.Password))
+        //        respuesta.Error = new Errores { codigo = "user_003", descripcion = "¡el password no puede ser nulo o vacío!" };
+        //    else if (obtCarteraTotal.NitCliente == null || string.IsNullOrWhiteSpace(obtCarteraTotal.NitCliente))
+        //        respuesta.Error = new Errores { codigo = "clien_001", descripcion = "¡el nitcliente no puede ser nulo o vacío!" };
 
-        //    try
-        //    {
-        //        if (Modelo.Usuarios == null)
-        //            respuesta.Error = new Errores { codigo = "USER_002", descripcion = "¡Todas las variables del usuario no pueden ser nulas!" };
-        //        if (Modelo.Usuarios.UserName == null || String.IsNullOrWhiteSpace(Modelo.Usuarios.UserName))
-        //            respuesta.Error = new Errores { codigo = "USER_003", descripcion = "¡El UserName no puede ser nulo o vacío!" };
-        //        else if (Modelo.Usuarios.Password == null || String.IsNullOrWhiteSpace(Modelo.Usuarios.Password))
-        //            respuesta.Error = new Errores { codigo = "USER_003", descripcion = "¡El Password no puede ser nulo o vacío!" };
-        //        else if (Modelo.Cliente.NitCliente == null || String.IsNullOrWhiteSpace(Modelo.Cliente.NitCliente))
-        //            respuesta.Error = new Errores { codigo = "CLIEN_001", descripcion = "¡El NitCliente no puede ser nulo o vacío!" };
-        //        else if (ExisteUsuario(Modelo.Usuarios))
-        //        {
-        //            DatosCartera dcl = new DatosCartera();
-        //            List<DatosCartera> DatCartera = new List<DatosCartera>();
-        //            respuesta.Error = dcl.ConsultarCartera(Modelo.Cliente.NitCliente, out DatCartera);
-        //            if (respuesta.Error == null)
-        //            {
-        //                if (DatCartera == null)
-        //                    respuesta.Error = new Errores { codigo = "USER_001", descripcion = "¡Usuario no encontrado!" };
-        //                else
-        //                    respuesta.Datoscartera = DatCartera;
-        //            }
-        //        }
-        //        else
-        //            respuesta.Error = new Errores { codigo = "USER_001", descripcion = "¡Usuario no encontrado!" };
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        respuesta.Error = new Errores { descripcion = ex.Message };
-        //    }
-        //    return respuesta;
-        //}
+        //    try {
+                
+        //        DataSet Tablainfo = new DataSet();
+        //        con.setConnection("SyscomDBSYSCOMSOPORTE");
+        //        Conex.setConnection("SyscomDBSAL");
+        //        List<SqlParameter> parametros = new List<SqlParameter>();
 
-        ////[WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/ConsolidadoClientes", BodyStyle = WebMessageBodyStyle.Bare)]
-        ////[return: MessageParameter(Name = "cliente")]
-        ////public ResObtenerConsClientes getConsClientes(DtClientes Modelo)
-        ////{
-        ////    ResObtenerConsClientes respuesta = new ResObtenerConsClientes();
-        ////    respuesta.Error = null;
+        //        parametros.Add(new SqlParameter("@NitCliente", obtCarteraTotal.NitCliente));
+        //        con.addParametersProc(parametros);
 
-        ////    try
-        ////    {
-        ////        if (Modelo.Usuarios == null)
-        ////            respuesta.Error = new Errores { codigo = "USER_002", descripcion = "¡Todas las variables del usuario no pueden ser nulas!" };
-        ////        else
-        ////        {
-        ////            if (Modelo.Usuarios.UserName == null || String.IsNullOrWhiteSpace(Modelo.Usuarios.UserName))
-        ////                respuesta.Error = new Errores { codigo = "USER_003", descripcion = "¡El UserName no puede ser nulo o vacío!" };
-        ////            else if (Modelo.Usuarios.Password == null || String.IsNullOrWhiteSpace(Modelo.Usuarios.Password))
-        ////                respuesta.Error = new Errores { codigo = "USER_003", descripcion = "¡El Password no puede ser nulo o vacío!" };
-        ////            //else if (Modelo.Cliente.NitCliente == null || String.IsNullOrWhiteSpace(Modelo.Cliente.NitCliente))
-        ////            //    respuesta.Error = new Errores { codigo = "CLIEN_001", descripcion = "¡El NitCliente no puede ser nulo o vacío!" };
-        ////            else if (ExisteUsuario(Modelo.Usuarios))
-        ////            {
-        ////                DatosCliente dcl = new DatosCliente();
-        ////                PaginadorCliente<DatosCliente> DatCliente = new PaginadorCliente<DatosCliente>();
-        ////                respuesta.Error = dcl.ConsultarConsCliente(Modelo.Clientes, out DatCliente);
-        ////                if (respuesta.Error == null)
-        ////                {
-        ////                    if (DatCliente == null)
-        ////                        respuesta.Error = new Errores { codigo = "USER_001", descripcion = "¡Usuario no encontrado!" };
-        ////                    else
-        ////                        respuesta.ListadoClientes = DatCliente;
-        ////                }
-        ////            }
-        ////            else
-        ////                respuesta.Error = new Errores { codigo = "USER_001", descripcion = "¡Usuario no encontrado!" };
-        ////        }
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        respuesta.Error = new Errores { descripcion = ex.Message };
-        ////    }
+        //        //Ejecuta procedimiento almacenado
+        //        DataTable DT = new DataTable();
+        //        con.resetQuery();
+                
 
-        ////    return respuesta;
-        ////}
+        //    } catch {
 
 
-        //[WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/GenerarPedido", BodyStyle = WebMessageBodyStyle.Bare)]
-        //[return: MessageParameter(Name = "Pedido")]
-        //public ResGenerarPedido setPedido(DtPedido Modelo)
-        //{
-        //    ResGenerarPedido respuesta = new ResGenerarPedido();
-        //    respuesta.Error = null;
-        //    List<SqlParameter> _parametros = new List<SqlParameter>();
-
-        //    try
-        //    {
-        //        if (Modelo.Usuarios == null)
-        //            respuesta.Error = new Errores { codigo = "USER_002", descripcion = "¡Todas las variables del usuario no pueden ser nulas!" };
-        //        else
-        //        {
-        //            if (Modelo.Usuarios.UserName == null || String.IsNullOrWhiteSpace(Modelo.Usuarios.UserName))
-        //                respuesta.Error = new Errores { codigo = "USER_003", descripcion = "¡El UserName no puede ser nulo o vacío!" };
-        //            else if (Modelo.Usuarios.Password == null || String.IsNullOrWhiteSpace(Modelo.Usuarios.Password))
-        //                respuesta.Error = new Errores { codigo = "USER_003", descripcion = "¡El Password no puede ser nulo o vacío!" };
-        //            else if (Modelo.Pedido.IdCliente == null || String.IsNullOrWhiteSpace(Modelo.Pedido.IdCliente))
-        //                respuesta.Error = new Errores { codigo = "GPED_001", descripcion = "¡El IdCliente no puede ser nulo o vacío!" };
-        //            else if (Modelo.Pedido.CodConcepto == null || String.IsNullOrWhiteSpace(Modelo.Pedido.CodConcepto))
-        //                respuesta.Error = new Errores { codigo = "GPED_001", descripcion = "¡El CodConcepto no puede ser nulo o vacío!" };
-        //            else if (Modelo.Pedido.IdVendedor == null || String.IsNullOrWhiteSpace(Modelo.Pedido.IdVendedor))
-        //                respuesta.Error = new Errores { codigo = "GPED_001", descripcion = "¡El IdVendedor no puede ser nulo o vacío!" };
-        //            else if (Modelo.Pedido.Observación == null || String.IsNullOrWhiteSpace(Modelo.Pedido.Observación))
-        //                respuesta.Error = new Errores { codigo = "GPED_001", descripcion = "¡La Observación no puede ser nula o vacía!" };
-        //            else if (Modelo.Pedido.ListaProductos.Count == 0)
-        //                respuesta.Error = new Errores { codigo = "GPED_003", descripcion = "¡No existen ningún producto para generar el pedido!" };
-        //            else if (ExisteUsuario(Modelo.Usuarios))
-        //            {
-        //                DatosPedido dpd = new DatosPedido();
-        //                List<DatosPedido> DatPedido = new List<DatosPedido>();
-        //                List<Pedido> ppedido = new List<Pedido>();
-        //                respuesta.Error = dpd.GenerarPedido(Modelo, out DatPedido);
-        //                if (respuesta.Error == null)
-        //                {
-        //                    if (DatPedido == null)
-        //                        respuesta.Error = new Errores { codigo = "USER_001", descripcion = "¡Usuario no encontrado!" };
-        //                    else
-        //                        respuesta.DatosPedido = DatPedido;
-        //                }
-
-        //            }
-        //            else
-        //                respuesta.Error = new Errores { codigo = "USER_001", descripcion = "¡Usuario no encontrado!" };
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        respuesta.Error = new Errores { descripcion = ex.Message };
         //    }
 
         //    return respuesta;
         //}
 
 
-
-
-
-
-
-
-    }
+    }   
 }

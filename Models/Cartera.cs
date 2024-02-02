@@ -6,22 +6,57 @@ using System.Web;
 
 namespace WcfPedidos30.Models
 {
+    [DataContract]
     public class Cartera
     {
-        public int Abono { get; set; }
-        public string Compania { get; set; }
-        public int DocumentoCliente { get; set; }
-        public string TipoDocumentoCliente { get; set; }
-        public string Tercero { get; set; }
+        public int pmAbono { get; set; }
+        public string pmCompania { get; set; }
+        public int pmDocumento { get; set; }
+        public string pmTipoDocumento{ get; set; }
+     
 
-        public int VencimientoFactura { get; set; }
-        public DateTime FechaEmision { get; set; }
-        public DateTime FechaVencimiento { get; set; }
-        public int ValorTotal { get; set; }
+        public int pmVencimiento { get; set; }
+        public DateTime pmFechaEmision { get; set; }
+        public DateTime pmFechaVencimiento { get; set; }
+        public int pmValorTotal { get; set; }
 
-        public int Saldo { get; set; }
-        public int SaldoCartera { get; set; }
+        public int pmSaldo { get; set; }
+        
 
-       
+        [DataMember]
+        public int Abono { get { return pmAbono; } set { pmAbono = value; } }
+        [DataMember]
+        public string Compania { get { return pmCompania; } set { pmCompania = value; } }
+        [DataMember]
+        public int  Documento { get { return pmDocumento; } set { pmDocumento = value; } }
+        [DataMember]
+        public string TipoDocumento { get { return pmTipoDocumento; } set { pmTipoDocumento = value; } }
+        
+        [DataMember]
+        public int Vencimiento { get { return pmVencimiento; } set { pmVencimiento = value; } }
+        [DataMember]
+        public int ValorTotal { get { return pmValorTotal; } set { pmValorTotal = value; } }
+        [DataMember]
+        public DateTime FechaEmision { get { return pmFechaEmision; } set { pmFechaEmision = value; } }
+        [DataMember]
+        public DateTime FechaVencimiento { get { return pmFechaVencimiento; } set { pmFechaVencimiento = value; } }
+        [DataMember]
+        public int Saldo { get { return pmSaldo; } set { pmSaldo = value; } }
+        
+    }
+    [DataContract]
+    public class ItemCartera {
+
+        private string pmTercero { get; set; }
+        private int pmSaldoCartera { get; set; }
+        private List<Cartera> pmDetalle { get; set; }
+
+        [DataMember]
+        public List<Cartera> Detalle { get { return pmDetalle; } set { pmDetalle = value; } }
+
+        [DataMember]
+        public string Tercero { get { return pmTercero; } set { pmTercero = value; } }
+        [DataMember]
+        public int SaldoCartera { get { return pmSaldoCartera; } set { pmSaldoCartera = value; } }
     }
 }

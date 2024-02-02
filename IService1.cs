@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 using WcfPedidos30.Models;
+using WcfPruebas30.Models;
 using static WcfPruebas30.CarteraReq;
 
 namespace WcfPruebas30
@@ -18,12 +19,12 @@ namespace WcfPruebas30
         /// <summary>
         /// Resources the obt cart  definition.
         /// </summary>
-        /// <param name="Info">The information.</param>
+        /// <param name="obtenerConSolidado">The information.</param>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/ObtenerConsolidadoClientes", BodyStyle = WebMessageBodyStyle.Bare)]
         [return: MessageParameter(Name = "ConsolidacionC")]
-        RespClientes resClients(RespClientes Info);
+        RespClientes resClients(ObtInfoClientes obtenerConSolidado);
 
         /// <summary>
         /// Resources the obt cart  definition.
@@ -42,44 +43,16 @@ namespace WcfPruebas30
         /// </summary>
         /// <param name="Info">The information.</param>
         /// <returns></returns>
-        [OperationContract]
-        [WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/ObtenerCarteraTotal", BodyStyle = WebMessageBodyStyle.Bare)]
-        [return: MessageParameter(Name = "CarteraTotal")]
-        CarteraRespTotal RespCarteraTotal(ObtCarteraTotal obtCarteraTotal);
+        //[OperationContract]
+        //[WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/ObtenerCarteraTotal", BodyStyle = WebMessageBodyStyle.Bare)]
+        //[return: MessageParameter(Name = "CarteraTotal")]
+        //CarteraRespTotal RespCarteraTotal(ObtCarteraTotal obtCarteraTotal);
 
 
     }
 
 
-    [DataContract]
-    public class Log
-    {
-        string _fecha;
-        Int32 _registros;
-        string _codigo;
-        string _mensaje;
-
-        [DataMember]
-        public string Fecha
-        {
-            get { return _fecha; }
-            set { _fecha = value; }
-        }
-
-        [DataMember]
-        public string Codigo
-        {
-            get { return _codigo; }
-            set { _codigo = value; }
-        }
-
-        [DataMember]
-        public string Descripcion
-        {
-            get { return _mensaje; }
-            set { _mensaje = value; }
-        }
-    }
+ 
 
     [DataContract]
     public class OrganizadorPagina
@@ -126,30 +99,24 @@ namespace WcfPruebas30
     [DataContract]
     public class RespClientes
     {
-        Log _registro;
-        List<ClienteResponse> _clientes;
-        OrganizadorPagina organizadorPagina;
+        Errores _errores;
+        PaginadorCliente<ClienteResponse> _clientes;
+
 
         [DataMember]
-        public Log Registro
+        public Errores Error
         {
-            get { return _registro; }
-            set { _registro = value; }
+            get { return _errores; }
+            set { _errores = value; }
         }
 
         [DataMember]
-        public List<ClienteResponse> Clientes
+        public PaginadorCliente<ClienteResponse> ListadoClientes
         {
             get { return _clientes; }
             set { _clientes = value; }
         }
 
-        [DataMember]
-        public OrganizadorPagina paginas
-        {
-            get { return organizadorPagina; }
-            set { organizadorPagina = value; }
-        }
     }
 
     [DataContract]
@@ -158,68 +125,141 @@ namespace WcfPruebas30
         Usuario usuario;
 
         [DataMember]
-        public Usuario _usuario
-        {
-            get { return _usuario; }
-            set { _usuario = value; }
-        }
-
-        [DataMember]
         public string NitCliente { get; set; }
 
         [DataMember]
-        public PaginaAcceder Pagina
+        public Usuario _usuario
         {
-            get { return Pagina; }
-            set { Pagina = value; }
+            get { return usuario; }
+            set { usuario = value; }
+        }
+
+
+
+    }
+    [DataContract]
+    public class CarteraReq
+    {
+        Usuario _usuario;
+        [DataMember]
+        public string NitCliente { get; set; }
+
+
+        [DataMember]
+        public Usuario usuario
+        {
+            get { return _usuario; }
+            set { _usuario = value; }
         }
     }
     [DataContract]
-    public class CarteraReq {
+    public class CarteraResp
+    {
+        Errores _error;
+        List<ItemCartera> _DatosCartera;
+
+
+        [DataMember]
+        public List<ItemCartera> DatosCartera
+        {
+            get { return _DatosCartera; }
+            set { _DatosCartera = value; }
+        }
+
+        [DataMember]
+        public Errores Error
+        {
+            get { return _error; }
+            set { _error = value; }
+        }
+
+    }
+
+    [DataContract]
+    public class ObtCarteraTotal
+    {
+        public Usuario _usuario;
+
+
         [DataMember]
         public string NitCliente { get; set; }
 
         [DataMember]
-        public Usuario _usuario
+        public Usuario usuario
         {
             get { return _usuario; }
             set { _usuario = value; }
         }
-        [DataContract]
-        public class CarteraResp {
-            [DataMember]
-            public Cartera cartera
-            {
-                get { return cartera; }
-                set { cartera = value; }
-            }
+    }
+    [DataContract]
+    public class CarteraRespTotal
+    {
+        Errores _error;
+
+        [DataMember]
+        public Cartera cartera
+        {
+            get { return cartera; }
+            set { cartera = value; }
         }
 
-        [DataContract]
-        public class ObtCarteraTotal {
-
-            [DataMember]
-            public Usuario _usuario
-            {
-                get { return _usuario; }
-                set { _usuario = value; }
-            }
+        [DataMember]
+        public Errores Error
+        {
+            get { return _error; }
+            set { _error = value; }
         }
-        [DataContract]
-        public class CarteraRespTotal {
-            [DataMember]
-            public Cartera cartera {
-                get { return cartera; }
-                set { cartera = value; }
-            }
+    }
+    [DataContract]
+    public class ResDatosUsuario
+    {
+        Usuario _usuario;
+        Errores _error;
+
+        [DataMember]
+        public Usuario DatosUsuarios
+        {
+            get { return _usuario; }
+            set { _usuario = value; }
         }
 
-
-
+        [DataMember]
+        public Errores Error
+        {
+            get { return _error; }
+            set { _error = value; }
+        }
 
     }
+    [DataContract]
+    public class Log
+    {
+        string _fecha;
+        Int32 _registros;
+        string _codigo;
+        string _mensaje;
 
-    
-        
-    
+        [DataMember]
+        public string Fecha
+        {
+            get { return _fecha; }
+            set { _fecha = value; }
+        }
+
+        [DataMember]
+        public string Codigo
+        {
+            get { return _codigo; }
+            set { _codigo = value; }
+        }
+
+        [DataMember]
+        public string Descripcion
+        {
+            get { return _mensaje; }
+            set { _mensaje = value; }
+        }
+    }
+
+
 }

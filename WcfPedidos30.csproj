@@ -120,6 +120,7 @@
     <Compile Include="Models\Agencia.cs" />
     <Compile Include="Models\Cartera.cs" />
     <Compile Include="Models\Cliente.cs" />
+    <Compile Include="Models\ExisteUsuario.cs" />
     <Compile Include="Models\LogErrores.cs" />
     <Compile Include="Models\PaginadorCliente.cs" />
     <Compile Include="Models\PaginadorProducto.cs" />
