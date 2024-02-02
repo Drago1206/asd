@@ -17,7 +17,7 @@ namespace WcfPruebas30
     {
 
         /// <summary>
-        /// Resources the obt cart  definition.
+        /// Ruta del metodo para obtener la consolidacion del cliente.
         /// </summary>
         /// <param name="obtenerConSolidado">The information.</param>
         /// <returns></returns>
@@ -27,26 +27,15 @@ namespace WcfPruebas30
         RespClientes resClients(ObtInfoClientes obtenerConSolidado);
 
         /// <summary>
-        /// Resources the obt cart  definition.
+        /// Ruta del metodo para obtener cartera
         /// </summary>
-        /// <param name="Info">The information.</param>
+        /// <param name="ReqCartera">The information.</param>
         /// <returns></returns>
         [OperationContract]
         [WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/ObtenerCartera", BodyStyle = WebMessageBodyStyle.Bare)]
         [return: MessageParameter(Name = "CarteraResponse")]
         CarteraResp RespCartera(CarteraReq ReqCartera);
 
-
-
-        /// <summary>
-        /// Resources the obt cart  definition.
-        /// </summary>
-        /// <param name="Info">The information.</param>
-        /// <returns></returns>
-        //[OperationContract]
-        //[WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/ObtenerCarteraTotal", BodyStyle = WebMessageBodyStyle.Bare)]
-        //[return: MessageParameter(Name = "CarteraTotal")]
-        //CarteraRespTotal RespCarteraTotal(ObtCarteraTotal obtCarteraTotal);
 
 
     }
@@ -102,14 +91,20 @@ namespace WcfPruebas30
         Errores _errores;
         PaginadorCliente<ClienteResponse> _clientes;
 
-
+        /// <summary>
+        /// Manejo de errores o procedimientos de las funciones
+        /// </summary>
+       
         [DataMember]
         public Errores Error
         {
             get { return _errores; }
             set { _errores = value; }
         }
-
+        /// <summary>
+        /// Paginador del cliente para acceder a la informacion 
+        /// de la clase debida.
+        /// </summary>
         [DataMember]
         public PaginadorCliente<ClienteResponse> ListadoClientes
         {
@@ -122,11 +117,18 @@ namespace WcfPruebas30
     [DataContract]
     public class ObtInfoClientes
     {
+        /// <summary>
+        /// Propiedad del nit cliente para que el usuario,
+        /// logre accerder a la funcionalidad de los metodos
+        /// </summary>
         Usuario usuario;
 
         [DataMember]
         public string NitCliente { get; set; }
 
+        /// <summary>
+        /// Propiedad del usuario para poder obtener el nombre de usuario y contraseña
+        /// </summary>
         [DataMember]
         public Usuario _usuario
         {
@@ -141,9 +143,17 @@ namespace WcfPruebas30
     public class CarteraReq
     {
         Usuario _usuario;
+        /// <summary>
+        /// Propiedad del nit cliente para que el usuario,
+        /// logre accerder a la funcionalidad de los metodos
+        /// </summary>
+        
         [DataMember]
         public string NitCliente { get; set; }
 
+        /// <summary>
+        /// Propiedad del usuario para poder obtener el nombre de usuario y contraseña
+        /// </summary>
 
         [DataMember]
         public Usuario usuario
@@ -158,6 +168,10 @@ namespace WcfPruebas30
         Errores _error;
         List<ItemCartera> _DatosCartera;
 
+        /// <summary>
+        /// Propiedad para poder listar los datos de la clase cartera que a su vez
+        /// tiene la lista de la clase cartera para almacenar los resultados.
+        /// </summary>
 
         [DataMember]
         public List<ItemCartera> DatosCartera
@@ -165,6 +179,9 @@ namespace WcfPruebas30
             get { return _DatosCartera; }
             set { _DatosCartera = value; }
         }
+        /// <summary>
+        /// Manejo de errores o estados de las solicitudes de los metodos
+        /// </summary>
 
         [DataMember]
         public Errores Error
@@ -175,91 +192,61 @@ namespace WcfPruebas30
 
     }
 
-    [DataContract]
-    public class ObtCarteraTotal
-    {
-        public Usuario _usuario;
+    //[DataContract]
+    //public class ObtCarteraTotal
+    //{
+    //    public Usuario _usuario;
 
 
-        [DataMember]
-        public string NitCliente { get; set; }
+    //    [DataMember]
+    //    public string NitCliente { get; set; }
 
-        [DataMember]
-        public Usuario usuario
-        {
-            get { return _usuario; }
-            set { _usuario = value; }
-        }
-    }
-    [DataContract]
-    public class CarteraRespTotal
-    {
-        Errores _error;
+    //    [DataMember]
+    //    public Usuario usuario
+    //    {
+    //        get { return _usuario; }
+    //        set { _usuario = value; }
+    //    }
+    //}
+    //[DataContract]
+    //public class CarteraRespTotal
+    //{
+    //    Errores _error;
 
-        [DataMember]
-        public Cartera cartera
-        {
-            get { return cartera; }
-            set { cartera = value; }
-        }
+    //    [DataMember]
+    //    public Cartera cartera
+    //    {
+    //        get { return cartera; }
+    //        set { cartera = value; }
+    //    }
 
-        [DataMember]
-        public Errores Error
-        {
-            get { return _error; }
-            set { _error = value; }
-        }
-    }
-    [DataContract]
-    public class ResDatosUsuario
-    {
-        Usuario _usuario;
-        Errores _error;
+    //    [DataMember]
+    //    public Errores Error
+    //    {
+    //        get { return _error; }
+    //        set { _error = value; }
+    //    }
+    //}
+    //[DataContract]
+    //public class ResDatosUsuario
+    //{
+    //    Usuario _usuario;
+    //    Errores _error;
 
-        [DataMember]
-        public Usuario DatosUsuarios
-        {
-            get { return _usuario; }
-            set { _usuario = value; }
-        }
+    //    [DataMember]
+    //    public Usuario DatosUsuarios
+    //    {
+    //        get { return _usuario; }
+    //        set { _usuario = value; }
+    //    }
 
-        [DataMember]
-        public Errores Error
-        {
-            get { return _error; }
-            set { _error = value; }
-        }
+    //    [DataMember]
+    //    public Errores Error
+    //    {
+    //        get { return _error; }
+    //        set { _error = value; }
+    //    }
 
-    }
-    [DataContract]
-    public class Log
-    {
-        string _fecha;
-        Int32 _registros;
-        string _codigo;
-        string _mensaje;
-
-        [DataMember]
-        public string Fecha
-        {
-            get { return _fecha; }
-            set { _fecha = value; }
-        }
-
-        [DataMember]
-        public string Codigo
-        {
-            get { return _codigo; }
-            set { _codigo = value; }
-        }
-
-        [DataMember]
-        public string Descripcion
-        {
-            get { return _mensaje; }
-            set { _mensaje = value; }
-        }
-    }
-
+    //}
 
 }

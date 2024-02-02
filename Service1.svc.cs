@@ -162,7 +162,6 @@ namespace WcfPruebas30
                                 // Filtrar los datos por el NIT del cliente
                                 IEnumerable<DataRow> data = TablaCliente.Tables[0].AsEnumerable()
                                                             .Where(row => row.Field<string>("NitCliente") == obtenerConSolidado.NitCliente);
-
                                 
                                 clientes = con.DataTableToList<ClienteResponse>("NitCliente,NombreCliente,Direccion,Ciudad,Telefono,NumLista,NitVendedor,NomVendedor".Split(','), TablaCliente);
                                 DataTable lista = TablaCliente.Tables[0];
@@ -171,30 +170,6 @@ namespace WcfPruebas30
                                     m.ListaAgencia = new List<Agencia>();
                                     m.ListaAgencia = con.DataTableToList<Agencia>(lista.Copy().Rows.Cast<DataRow>().Where(r => r.Field<string>("NitCliente").Equals(m.NitCliente)).CopyToDataTable().AsDataView().ToTable(true, "CodAge,NomAge".Split(',')));
                                 });
-
-                                //// Procesar los datos filtrados
-                                //foreach (DataRow row in data)
-                                //{
-
-                                //    clientes.Add(new ClienteResponse
-                                //    {
-                                //        Ciudad = row.Field<string>("Ciudad"),
-                                //        Direccion = row.Field<string>("Direccion"),
-                                //        NitCliente = row.Field<string>("NitCliente"),
-                                //        NombreCliente = row.Field<string>("NombreCliente"),
-                                //        NitVendedor = row.Field<string>("NitVendedor"),
-                                //        NomVendedor = row.Field<string>("NomVendedor"),
-                                //        NumLista = row.Field<int>("NumLista"),
-
-                                //    });
-
-                                //    agencia.ListaAgencia.Add(new Agencia
-                                //    {
-                                //        pmNomAge = row.Field<string>("NomAge"),
-                                //        pmCodAge = row.Field<string>("CodAge")
-                                //    });
-
-                                //}
 
                                 // Asignar la lista filtrada a RespClientes
 
