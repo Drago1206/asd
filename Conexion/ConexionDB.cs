@@ -191,7 +191,7 @@ namespace WcfPedidos30.Model
         }
 
         /// <summary>
-        /// Ejeucuta el procedimiento.
+        /// Ejecuta el procedimiento de almacenado 
         /// </summary>
         /// <param name="_procedimiento">Nombre del procedimiento.</param>
         /// <param name="_aliasProcedimiento">Alias del datatable.</param>
@@ -201,7 +201,7 @@ namespace WcfPedidos30.Model
         /// </exception>
         public void ejecutarProcedimiento(string _procedimiento, string _aliasProcedimiento = null, bool _sinresultados = false)
         {
-
+          
             try
             {
                 if (this.sqlConn.State != ConnectionState.Open)
@@ -764,7 +764,7 @@ namespace WcfPedidos30.Model
         }
 
         /// <summary>
-        /// Procedimientos Almacenados.
+        /// Ejecutamos los procedimientos de almacenado.
         /// </summary>
         /// <param name="SqlQuery">metodo acceder.</param>
         /// <param name="_parametros">parametros en la consulta.</param>
@@ -817,12 +817,24 @@ namespace WcfPedidos30.Model
         {
             this.sqlConn.Close();
         }
-        
+
+        /// <summary>
+        ///  convierte un objeto DataSet o DataTable en una lista de objetos del tipo especificado T, donde T es una clase que cumple con las restricciones definidas (class, new()).
+        ///  La función espera recibir dos parámetros opcionales:
+        /// </summary>
+        /// <param name="DatosDt">Representa un array de strings que representa los nombres de las columnas que se desean incluir en los objetos de la lista.</param>
+        /// <param name="dtTable">El conjunto de datos  (DataTable) que se desea convertir en una lista de objetos.</param>
+
+        /// <returns></returns>
+
         public List<T> DataTableToList<T>(string[] DatosDt = null, DataSet dtTable = null) where T : class, new()
         {
             try
-            {
+            {   
+                //Recibimos los datos de las listas que se mandan en la ejecucion de los metodos 
                 List<T> list = new List<T>();
+                
+                //Verificamos que los DataTable vengan nulos para de esta manera asignar los valores en la diferentes posiciones de las tablas
                 DataTable dt = DatosDt == null ? dtTable.Tables[0] : dtTable.Tables[0].DefaultView.ToTable(true, DatosDt);
                 foreach (DataRow row in dt.Rows)
                 {
@@ -832,6 +844,7 @@ namespace WcfPedidos30.Model
                     {
                         try
                         {
+                            //Obtenemos las propiedades de los valores e ingresamos lo obtenido en el procedimiento de almacenado
                             PropertyInfo propertyInfo = obj.GetType().GetProperty(prop.Name);
                             propertyInfo.SetValue(obj, Convert.ChangeType(row[prop.Name], propertyInfo.PropertyType), null);
                         }
@@ -851,10 +864,20 @@ namespace WcfPedidos30.Model
                 return null;
             }
         }
+
+        /// <summary>
+        ///  convierte un objeto DataTable en una lista de objetos del tipo especificado T, donde T es una clase que cumple con las restricciones definidas (class, new()).
+        ///  La función espera recibir dos parámetros opcionales:
+        /// </summary>
+        /// <param name="DatosDt">Representa un array de strings que representa los nombres de las columnas que se desean incluir en los objetos de la lista.</param>
+       
+
+        /// <returns></returns>
         public List<T> DataTableToList<T>(DataTable dtDatos) where T : class, new()
         {
             try
             {
+                //Obtenemos los datos que nos llegan como un DataTable e realizamos una nueva instancia
                 List<T> list = new List<T>();
 
                 foreach (DataRow row in dtDatos.Rows)
@@ -865,6 +888,7 @@ namespace WcfPedidos30.Model
                     {
                         try
                         {
+                            //Recorremos el data table con un row para de esta manera poder obtener las propiedades adquiridas
                             PropertyInfo propertyInfo = obj.GetType().GetProperty(prop.Name);
                             propertyInfo.SetValue(obj, Convert.ChangeType(row[prop.Name], propertyInfo.PropertyType), null);
                         }
