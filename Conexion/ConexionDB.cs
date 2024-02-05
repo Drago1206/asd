@@ -892,7 +892,7 @@ namespace WcfPedidos30.Model
                             PropertyInfo propertyInfo = obj.GetType().GetProperty(prop.Name);
                             propertyInfo.SetValue(obj, Convert.ChangeType(row[prop.Name], propertyInfo.PropertyType), null);
                         }
-                        catch
+                        catch(Exception e)
                         {
                             continue;
                         }
@@ -908,6 +908,29 @@ namespace WcfPedidos30.Model
                 return null;
             }
         }
-    }
 
+        public List<T> ConvertirDataTableALista<T>(DataTable dtDatos) where T : new()
+        {
+            List<T> lista = new List<T>();
+
+            foreach (DataRow row in dtDatos.Rows)
+            {
+                T obj = new T();
+
+                foreach (DataColumn col in dtDatos.Columns)
+                {
+                    PropertyInfo prop = obj.GetType().GetProperty(col.ColumnName);
+                    if (prop != null && row[col] != DBNull.Value)
+                    {
+                        prop.SetValue(obj, Convert.ChangeType(row[col], prop.PropertyType));
+                    }
+                }
+
+                lista.Add(obj);
+            }
+
+            return lista;
+        }
+    }
 }
+

@@ -64,8 +64,10 @@ namespace WcfPruebas30
                             //Instanciamos la clase item cartera para instanciar la lista de cartera que esta clase contiene 
                             ItemCartera cartItem = new ItemCartera();
                             //Creamos una nueva instancia de la lista de cartera la cual la contienen un nombre que se llama detalle.
-                            cartItem.Detalle = new List<Cartera>();
+                            
+                            
                             List<ItemCartera> datItemCart = new List<ItemCartera>();
+                           
 
                             try
                             {
@@ -88,53 +90,50 @@ namespace WcfPruebas30
                                 {
                                     //IEnumerable Convierte la tabla en una secuencia de objetos DataRow que se pueden usar en consultas LINQ.
 
-                                    IEnumerable<DataRow> data = Tablainfo.Tables[0].AsEnumerable()
-                                    //Aplica un filtro a esta secuencia de DataRow, seleccionando solo aquellas filas donde el valor de la columna "Tercero" sea igual al valor de ReqCartera.NitCliente.
+                                    ////IEnumerable<DataRow> data = Tablainfo.Tables[0].AsEnumerable()
+                                    //////Aplica un filtro a esta secuencia de DataRow, seleccionando solo aquellas filas donde el valor de la columna "Tercero" sea igual al valor de ReqCartera.NitCliente.
 
-                                    .Where(row => row.Field<string>("Tercero") == ReqCartera.NitCliente);
-
-                                    //DataTable dtDatos = con.getDataTable();
-
-                                    //cartItem = con.DataTableToList<ItemCartera>("Tercero,SaldoCartera".Split(','),Tablainfo);
-                                    //datItemCart.ForEach(m =>
-                                    //{
-                                    //    m.Detalle = new List<ItemCartera>();
-                                    //    //m.Detalle = cnn.DataTableToList<itemCartera>(dtDatos.AsEnumerable().Where(r => Convert.ToString(r["Tercero"]) != Convert.ToString(m.Tercero)).AsDataView().ToTable(true, "TipoDocumento,Documento,Compañia,Vencimiento,FechaEmision,FechaVencimiento,ValorTotal,Abono,Saldo".Split(',')));
-                                    //    m.Detalle = con.DataTableToList<ItemCartera>(dtDatos.Tablainfo.Rows.Cast<DataRow>().Where(r => r.Field<string>("Tercero").Equals(m.Tercero)).CopyToDataTable().AsDataView().ToTable(true, "TipoDocumento,Documento,Compañia,Vencimiento,FechaEmision,FechaVencimiento,ValorTotal,Abono,Saldo".Split(',')));
-                                    //});
-
-
-                                    //Recorremos el data con un datarow y a medida que realicemos esto vamos implementando los datos obtenidos en las listas respectivas.
-                                    foreach (DataRow row in data)
+                                    ////.Where(row => row.Field<string>("Tercero") == ReqCartera.NitCliente);
+                                    
+                                    datItemCart = con.DataTableToList<ItemCartera>("Tercero,SaldoCartera".Split(','), Tablainfo);
+                                    datItemCart.ForEach(m =>
                                     {
-                                        // aqui ingresaremos los datos obtenidos en la cartera a medida que se realice el ciclo
-                                        cartItem.Detalle.Add(new Cartera
-                                        {
-                                            //realizamos la conversion porque en la base de datos , algunos son de tipo decimal y necesitamos recibirlos como enteros(int)
-                                            //el resto de datos los vamos añadiendo a sus respectivas propiedades que se encuentran en las clases
-                                            Abono = Convert.ToInt32(row.Field<Decimal>("Abono")),
-                                            Documento = row.Field<int>("Documento"),
-                                            TipoDocumento = row.Field<string>("Tipodocumento"),
-                                            Compania = row.Field<string>("Compañia"),
-                                            Vencimiento = Convert.ToInt32(row.Field<Int16>("Vencimiento")),
-                                            ValorTotal = Convert.ToInt32(row.Field<Decimal>("ValorTotal")),
-                                            FechaEmision = row.Field<DateTime>("FechaEmision"),
-                                            FechaVencimiento = row.Field<DateTime>("Fechavencimiento"),
-                                            Saldo = Convert.ToInt32(row.Field<Decimal>("Saldo"))
+                                        m.Detalle = new List<Cartera>();
+                                      
+                                        m.Detalle = con.DataTableToList<Cartera>(Tablainfo.Tables[0].Copy().Rows.Cast<DataRow>().Where(r => r.Field<string>("Tercero").Equals(m.Tercero)).CopyToDataTable().AsDataView().ToTable(true, "TipoDocumento,Documento,Compañia,Vencimiento,FechaEmision,FechaVencimiento,ValorTotal,Abono,Saldo".Split(',')));
+                                    });
+                                    
+                                    ////Recorremos el data con un datarow y a medida que realicemos esto vamos implementando los datos obtenidos en las listas respectivas.
+                                    //foreach (DataRow row in data)
+                                    //{
+                                    //    // aqui ingresaremos los datos obtenidos en la cartera a medida que se realice el ciclo
+                                    //    cartItem.Detalle.Add(new Cartera
+                                    //    {
+                                    //        //realizamos la conversion porque en la base de datos , algunos son de tipo decimal y necesitamos recibirlos como enteros(int)
+                                    //        //el resto de datos los vamos añadiendo a sus respectivas propiedades que se encuentran en las clases
+                                    //        Abono = Convert.ToInt32(row.Field<Decimal>("Abono")),
+                                    //        Documento = row.Field<int>("Documento"),
+                                    //        TipoDocumento = row.Field<string>("Tipodocumento"),
+                                    //        Compania = row.Field<string>("Compañia"),
+                                    //        Vencimiento = Convert.ToInt32(row.Field<Int16>("Vencimiento")),
+                                    //        ValorTotal = Convert.ToInt32(row.Field<Decimal>("ValorTotal")),
+                                    //        FechaEmision = row.Field<DateTime>("FechaEmision"),
+                                    //        FechaVencimiento = row.Field<DateTime>("Fechavencimiento"),
+                                    //        Saldo = Convert.ToInt32(row.Field<Decimal>("Saldo"))
 
-                                        });
-                                        datItemCart.Add(new ItemCartera
-                                        {
-                                            //realizamos la conversion porque en la base de datos , algunos son de tipo decimal y necesitamos recibirlos como enteros(int)
-                                            //el resto de datos los vamos añadiendo a sus respectivas propiedades que se encuentran en las clases
-                                            SaldoCartera = Convert.ToInt32(row.Field<Decimal>("SaldoCartera")),
-                                            Tercero = row.Field<string>("Tercero")
-                                        });
+                                    //    });
+                                    //    datItemCart.Add(new ItemCartera
+                                    //    {
+                                    //        //realizamos la conversion porque en la base de datos , algunos son de tipo decimal y necesitamos recibirlos como enteros(int)
+                                    //        //el resto de datos los vamos añadiendo a sus respectivas propiedades que se encuentran en las clases
+                                    //        SaldoCartera = Convert.ToInt32(row.Field<Decimal>("SaldoCartera")),
+                                    //        Tercero = row.Field<string>("Tercero")
+                                    //    });
 
-                                        //Pasamos las listas obtenidas a los bloques de contrato para de esta manera poder obtener los datos.
-                                        respuesta.DatosCartera = datItemCart;
-                                       respuesta.DatosCartera.Add(cartItem);
-                                    }
+                                    //    //Pasamos las listas obtenidas a los bloques de contrato para de esta manera poder obtener los datos.
+                                     respuesta.DatosCartera = datItemCart;
+                                     respuesta.DatosCartera.Add(cartItem);
+                                    //}
 
 
 
