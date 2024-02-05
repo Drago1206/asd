@@ -12,8 +12,8 @@ namespace WcfPedidos30.Models
         public int pmAbono { get; set; }
         public string pmCompania { get; set; }
         public int pmDocumento { get; set; }
-        public string pmTipoDocumento{ get; set; }
-     
+        public string pmTipoDocumento { get; set; }
+
 
         public int pmVencimiento { get; set; }
         public DateTime pmFechaEmision { get; set; }
@@ -21,17 +21,17 @@ namespace WcfPedidos30.Models
         public int pmValorTotal { get; set; }
 
         public int pmSaldo { get; set; }
-        
+
 
         [DataMember]
         public int Abono { get { return pmAbono; } set { pmAbono = value; } }
         [DataMember]
         public string Compania { get { return pmCompania; } set { pmCompania = value; } }
         [DataMember]
-        public int  Documento { get { return pmDocumento; } set { pmDocumento = value; } }
+        public int Documento { get { return pmDocumento; } set { pmDocumento = value; } }
         [DataMember]
         public string TipoDocumento { get { return pmTipoDocumento; } set { pmTipoDocumento = value; } }
-        
+
         [DataMember]
         public int Vencimiento { get { return pmVencimiento; } set { pmVencimiento = value; } }
         [DataMember]
@@ -42,21 +42,18 @@ namespace WcfPedidos30.Models
         public DateTime FechaVencimiento { get { return pmFechaVencimiento; } set { pmFechaVencimiento = value; } }
         [DataMember]
         public int Saldo { get { return pmSaldo; } set { pmSaldo = value; } }
-        
+
     }
     [DataContract]
-    public class ItemCartera {
-
-        private string pmTercero { get; set; }
-        private int pmSaldoCartera { get; set; }
-        private List<Cartera> pmDetalle { get; set; }
+    public class ItemCartera
+    {
 
         [DataMember]
-        public List<Cartera> Detalle { get { return pmDetalle; } set { pmDetalle = value; } }
+        public string Tercero { get; set; }
+        [DataMember]
+        public int SaldoCartera { get; set; }
+        [DataMember]
+        public List<Cartera> Detalle { get; set; }
 
-        [DataMember]
-        public string Tercero { get { return pmTercero; } set { pmTercero = value; } }
-        [DataMember]
-        public int SaldoCartera { get { return pmSaldoCartera; } set { pmSaldoCartera = value; } }
     }
 }

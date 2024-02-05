@@ -31,7 +31,7 @@ namespace WcfPruebas30.Models
             bool existe = false;
             if (usuario != null)
             {
-                con.setConnection("Syscom");
+                con.setConnection("SyscomLog");
                 int ResTotal = 0;
                 string[] pwdDe = null;
                 DataSet TablaIncio = new DataSet();

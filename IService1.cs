@@ -121,7 +121,7 @@ namespace WcfPruebas30
         /// Propiedad del nit cliente para que el usuario,
         /// logre accerder a la funcionalidad de los metodos
         /// </summary>
-        Usuario _usuario;
+        UsuariosRequest _usuario;
 
         [DataMember]
         public string NitCliente { get; set; }
@@ -130,8 +130,9 @@ namespace WcfPruebas30
         /// Propiedad del usuario para poder obtener el nombre de usuario y contraseña
         /// </summary>
         [DataMember]
-        public Usuario usuario
+        public UsuariosRequest usuario
         {
+
             get { return _usuario; }
             set { _usuario = value; }
         }
@@ -139,6 +140,21 @@ namespace WcfPruebas30
 
 
     }
+    [DataContract]
+    public class ObtUsuario
+    {
+        Usuario _usuarioRequest;
+
+        [DataMember]
+        public Usuario Usuarios
+        {
+            get { return _usuarioRequest; }
+            set { _usuarioRequest = value; }
+        }
+
+    }
+
+
     [DataContract]
     public class CarteraReq
     {
